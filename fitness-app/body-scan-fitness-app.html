@@ -1,0 +1,1133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Body Scan Fitness Planner</title>
+<style>
+:root {
+  --bg: #f7f8fa;
+  --surface: #ffffff;
+  --text: #1c1f26;
+  --muted: #5b6472;
+  --border: #e1e4ea;
+  --primary: #2f6f4f;
+  --primary-text: #ffffff;
+  --danger: #b3261e;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #14161a;
+    --surface: #1d2026;
+    --text: #edeef0;
+    --muted: #a3abb8;
+    --border: #2c303a;
+    --primary: #4caf7d;
+    --primary-text: #0b1410;
+    --danger: #ff6b60;
+  }
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.5;
+}
+
+.app-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 1.5rem;
+  border-bottom: 1px solid var(--border);
+  background: var(--surface);
+}
+
+.app-header h1 {
+  font-size: 1.25rem;
+  margin: 0;
+}
+
+.link-button {
+  background: none;
+  border: none;
+  color: var(--primary);
+  font: inherit;
+  cursor: pointer;
+  padding: 0.25rem 0.5rem;
+}
+
+main {
+  max-width: 640px;
+  margin: 1.5rem auto;
+  padding: 0 1rem 3rem;
+}
+
+.step {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 1.5rem;
+}
+
+.step.hidden {
+  display: none;
+}
+
+h2 {
+  margin-top: 0;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  margin-bottom: 1rem;
+}
+
+label {
+  font-size: 0.9rem;
+  color: var(--muted);
+}
+
+input,
+select {
+  padding: 0.5rem 0.6rem;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: var(--bg);
+  color: var(--text);
+  font: inherit;
+}
+
+button {
+  padding: 0.6rem 1rem;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text);
+  font: inherit;
+  cursor: pointer;
+}
+
+button:hover {
+  filter: brightness(0.97);
+}
+
+.primary-button {
+  background: var(--primary);
+  color: var(--primary-text);
+  border: none;
+  font-weight: 600;
+}
+
+.danger-button {
+  background: none;
+  color: var(--danger);
+  border: 1px solid var(--danger);
+  margin-top: 1rem;
+}
+
+.step-nav {
+  display: flex;
+  gap: 0.75rem;
+  margin-top: 1.5rem;
+  flex-wrap: wrap;
+}
+
+.hint {
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+.photo-capture {
+  position: relative;
+  width: 100%;
+  max-width: 360px;
+  margin: 0 auto 1rem;
+  aspect-ratio: 3 / 4;
+  background: var(--bg);
+  border-radius: 12px;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.photo-capture video,
+.photo-capture img,
+.photo-capture canvas {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+
+.photo-actions {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  justify-content: center;
+  margin-bottom: 0.5rem;
+}
+
+.file-upload-button {
+  padding: 0.6rem 1rem;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  cursor: pointer;
+}
+
+.status-text {
+  text-align: center;
+  color: var(--muted);
+  min-height: 1.2em;
+}
+
+.hidden {
+  display: none !important;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 0.75rem 0 1.25rem;
+}
+
+th,
+td {
+  text-align: left;
+  padding: 0.5rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.macro-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
+  gap: 0.75rem;
+  margin: 1rem 0;
+}
+
+.macro-tile {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 0.75rem;
+  text-align: center;
+}
+
+.macro-tile .value {
+  font-size: 1.4rem;
+  font-weight: 700;
+}
+
+.macro-tile .label {
+  color: var(--muted);
+  font-size: 0.8rem;
+}
+
+.history-item {
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 0.75rem 1rem;
+  margin-bottom: 0.75rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+}
+
+.app-footer {
+  max-width: 640px;
+  margin: 0 auto 2rem;
+  padding: 0 1rem;
+  color: var(--muted);
+  font-size: 0.8rem;
+}
+</style>
+</head>
+<body>
+  <header class="app-header">
+    <h1>Body Scan Fitness Planner</h1>
+    <nav>
+      <button id="nav-new-scan" class="link-button" type="button">New Scan</button>
+      <button id="nav-history" class="link-button" type="button">History</button>
+    </nav>
+  </header>
+
+  <main id="app">
+
+    <!-- Step 1: Profile -->
+    <section id="step-profile" class="step">
+      <h2>1. Your Info &amp; Goal</h2>
+      <form id="profile-form">
+        <div class="field">
+          <label for="units">Units</label>
+          <select id="units" name="units">
+            <option value="metric">Metric (kg / cm)</option>
+            <option value="imperial">Imperial (lb / in)</option>
+          </select>
+        </div>
+
+        <div class="field">
+          <label for="sex">Sex</label>
+          <select id="sex" name="sex" required>
+            <option value="male">Male</option>
+            <option value="female">Female</option>
+            <option value="other">Other / prefer not to say</option>
+          </select>
+        </div>
+
+        <div class="field">
+          <label for="age">Age</label>
+          <input id="age" name="age" type="number" min="13" max="100" required />
+        </div>
+
+        <div class="field">
+          <label for="height">Height (<span id="height-unit">cm</span>)</label>
+          <input id="height" name="height" type="number" min="1" step="0.1" required />
+        </div>
+
+        <div class="field">
+          <label for="weight">Weight (<span id="weight-unit">kg</span>)</label>
+          <input id="weight" name="weight" type="number" min="1" step="0.1" required />
+        </div>
+
+        <div class="field">
+          <label for="activityLevel">Activity Level</label>
+          <select id="activityLevel" name="activityLevel" required>
+            <option value="sedentary">Sedentary (little/no exercise)</option>
+            <option value="light">Light (1-3 days/week)</option>
+            <option value="moderate" selected>Moderate (3-5 days/week)</option>
+            <option value="active">Active (6-7 days/week)</option>
+            <option value="very_active">Very Active (physical job / 2x/day)</option>
+          </select>
+        </div>
+
+        <div class="field">
+          <label for="goal">Goal</label>
+          <select id="goal" name="goal" required>
+            <option value="lose_fat">Lose fat</option>
+            <option value="build_muscle">Build muscle</option>
+            <option value="maintain">Maintain</option>
+            <option value="recomp">Recomposition (lose fat + build muscle)</option>
+          </select>
+        </div>
+
+        <div class="field">
+          <label for="daysPerWeek">Training days per week</label>
+          <select id="daysPerWeek" name="daysPerWeek" required>
+            <option value="3">3</option>
+            <option value="4" selected>4</option>
+            <option value="5">5</option>
+            <option value="6">6</option>
+          </select>
+        </div>
+
+        <button type="submit" class="primary-button">Next: Body Photos</button>
+      </form>
+    </section>
+
+    <!-- Step 2: Photos -->
+    <section id="step-photos" class="step hidden">
+      <h2>2. Body Photos (optional)</h2>
+      <p class="hint">
+        Add a front-facing, full-body photo so the app can estimate your body proportions and
+        fine-tune your workout split. This is entirely optional and everything stays on your
+        device &mdash; nothing is uploaded anywhere.
+      </p>
+
+      <div class="photo-capture">
+        <video id="camera-preview" autoplay playsinline muted class="hidden"></video>
+        <img id="photo-preview" class="hidden" alt="Body photo preview" />
+        <canvas id="pose-overlay" class="hidden"></canvas>
+      </div>
+
+      <div class="photo-actions">
+        <button id="start-camera" type="button">Use Camera</button>
+        <button id="capture-photo" type="button" class="hidden">Capture</button>
+        <label class="file-upload-button">
+          Upload Photo
+          <input id="upload-photo" type="file" accept="image/*" class="hidden" />
+        </label>
+        <button id="retake-photo" type="button" class="hidden">Retake</button>
+      </div>
+
+      <p id="photo-status" class="status-text"></p>
+
+      <div class="step-nav">
+        <button id="photos-back" type="button">Back</button>
+        <button id="photos-skip" type="button">Skip this step</button>
+        <button id="photos-next" type="button" class="primary-button">Next: Review</button>
+      </div>
+    </section>
+
+    <!-- Step 3: Review -->
+    <section id="step-review" class="step hidden">
+      <h2>3. Review Estimate</h2>
+      <div id="review-content"></div>
+      <div class="step-nav">
+        <button id="review-back" type="button">Back</button>
+        <button id="review-generate" type="button" class="primary-button">Generate My Plan</button>
+      </div>
+    </section>
+
+    <!-- Step 4: Plan -->
+    <section id="step-plan" class="step hidden">
+      <h2>4. Your Plan</h2>
+      <div id="plan-content"></div>
+      <div class="step-nav">
+        <button id="plan-save" type="button" class="primary-button">Save to History</button>
+        <button id="plan-restart" type="button">Start Over</button>
+      </div>
+    </section>
+
+    <!-- History -->
+    <section id="step-history" class="step hidden">
+      <h2>Scan History</h2>
+      <div id="history-content"></div>
+      <button id="history-clear" type="button" class="danger-button">Clear All Data</button>
+    </section>
+
+  </main>
+
+  <footer class="app-footer">
+    <p>
+      <strong>Disclaimer:</strong> This app provides rough, automated estimates for general
+      fitness planning only. It is not medical advice and does not measure body fat, health
+      status, or diagnose anything. Consult a doctor, registered dietitian, or certified trainer
+      before starting any new diet or exercise program. All data stays on this device.
+    </p>
+  </footer>
+
+<script>
+// =========================================================================
+// planGenerator: rule-based nutrition + workout plan generation.
+// =========================================================================
+
+const ACTIVITY_MULTIPLIERS = {
+  sedentary: 1.2,
+  light: 1.375,
+  moderate: 1.55,
+  active: 1.725,
+  very_active: 1.9,
+};
+
+const GOAL_CALORIE_ADJUSTMENT = {
+  lose_fat: -0.2,
+  build_muscle: 0.12,
+  maintain: 0,
+  recomp: -0.05,
+};
+
+const GOAL_PROTEIN_PER_KG = {
+  lose_fat: 2.2,
+  build_muscle: 1.8,
+  maintain: 1.6,
+  recomp: 2.0,
+};
+
+const FAT_PERCENT_OF_CALORIES = 0.28;
+
+function calculateBMR({ sex, weightKg, heightCm, age }) {
+  const base = 10 * weightKg + 6.25 * heightCm - 5 * age;
+  if (sex === 'male') return base + 5;
+  if (sex === 'female') return base - 161;
+  return base - 78; // midpoint offset for "other"/unspecified
+}
+
+function calculateTDEE(bmr, activityLevel) {
+  const multiplier = ACTIVITY_MULTIPLIERS[activityLevel] ?? ACTIVITY_MULTIPLIERS.sedentary;
+  return bmr * multiplier;
+}
+
+function calculateCalorieTarget(tdee, bmr, goal) {
+  const adjustment = GOAL_CALORIE_ADJUSTMENT[goal] ?? 0;
+  const target = tdee * (1 + adjustment);
+  // Safety floor: never recommend eating below estimated BMR.
+  return Math.max(target, bmr);
+}
+
+function calculateMacros({ weightKg, calories, goal }) {
+  const proteinPerKg = GOAL_PROTEIN_PER_KG[goal] ?? GOAL_PROTEIN_PER_KG.maintain;
+  const proteinG = Math.round(weightKg * proteinPerKg);
+  const proteinCal = proteinG * 4;
+
+  const fatCal = calories * FAT_PERCENT_OF_CALORIES;
+  const fatG = Math.round(fatCal / 9);
+
+  const carbsCal = Math.max(calories - proteinCal - fatCal, 0);
+  const carbsG = Math.round(carbsCal / 4);
+
+  return { proteinG, fatG, carbsG, calories: Math.round(calories) };
+}
+
+function buildNutritionPlan(profile) {
+  const bmr = calculateBMR(profile);
+  const tdee = calculateTDEE(bmr, profile.activityLevel);
+  const calories = calculateCalorieTarget(tdee, bmr, profile.goal);
+  const macros = calculateMacros({ weightKg: profile.weightKg, calories, goal: profile.goal });
+  return {
+    bmr: Math.round(bmr),
+    tdee: Math.round(tdee),
+    ...macros,
+  };
+}
+
+const REP_RANGE_BY_GOAL = {
+  lose_fat: { sets: 3, reps: '12-15' },
+  recomp: { sets: 3, reps: '10-12' },
+  build_muscle: { sets: 4, reps: '8-12' },
+  maintain: { sets: 3, reps: '10-12' },
+};
+
+const EXERCISES = {
+  full_body_a: ['Squat', 'Bench Press', 'Bent-Over Row', 'Plank'],
+  full_body_b: ['Deadlift', 'Overhead Press', 'Lat Pulldown', 'Side Plank'],
+  full_body_c: ['Goblet Squat', 'Incline Dumbbell Press', 'Seated Cable Row', 'Hanging Knee Raise'],
+  upper_a: ['Bench Press', 'Bent-Over Row', 'Overhead Press', 'Lat Pulldown', 'Bicep Curl', 'Tricep Pushdown'],
+  upper_b: ['Incline Dumbbell Press', 'Seated Cable Row', 'Lateral Raise', 'Face Pull', 'Hammer Curl', 'Skull Crusher'],
+  lower_a: ['Squat', 'Romanian Deadlift', 'Walking Lunge', 'Calf Raise', 'Hanging Knee Raise'],
+  lower_b: ['Leg Press', 'Deadlift', 'Bulgarian Split Squat', 'Seated Calf Raise', 'Cable Crunch'],
+  push: ['Bench Press', 'Overhead Press', 'Incline Dumbbell Press', 'Lateral Raise', 'Tricep Pushdown'],
+  pull: ['Deadlift', 'Bent-Over Row', 'Lat Pulldown', 'Face Pull', 'Bicep Curl'],
+  legs: ['Squat', 'Romanian Deadlift', 'Leg Press', 'Calf Raise', 'Hanging Knee Raise'],
+};
+
+const SPLIT_BY_DAYS = {
+  3: ['full_body_a', 'full_body_b', 'full_body_c'],
+  4: ['upper_a', 'lower_a', 'upper_b', 'lower_b'],
+  5: ['push', 'pull', 'legs', 'upper_a', 'lower_a'],
+  6: ['push', 'pull', 'legs', 'push', 'pull', 'legs'],
+};
+
+const DAY_LABELS = {
+  full_body_a: 'Full Body A',
+  full_body_b: 'Full Body B',
+  full_body_c: 'Full Body C',
+  upper_a: 'Upper Body A',
+  upper_b: 'Upper Body B',
+  lower_a: 'Lower Body A',
+  lower_b: 'Lower Body B',
+  push: 'Push',
+  pull: 'Pull',
+  legs: 'Legs',
+};
+
+const LOWER_DAY_TYPES = new Set(['lower_a', 'lower_b', 'legs', 'full_body_a', 'full_body_b', 'full_body_c']);
+const UPPER_DAY_TYPES = new Set(['upper_a', 'upper_b', 'push', 'pull', 'full_body_a', 'full_body_b', 'full_body_c']);
+
+function clampDays(daysPerWeek) {
+  const supported = Object.keys(SPLIT_BY_DAYS).map(Number);
+  return supported.reduce((closest, d) =>
+    Math.abs(d - daysPerWeek) < Math.abs(closest - daysPerWeek) ? d : closest
+  );
+}
+
+function generateWorkoutPlan({ daysPerWeek, goal, trainingBias = 'balanced' }) {
+  const days = clampDays(daysPerWeek);
+  const dayTypes = SPLIT_BY_DAYS[days];
+  const repRange = REP_RANGE_BY_GOAL[goal] ?? REP_RANGE_BY_GOAL.maintain;
+
+  return dayTypes.map((dayType, index) => {
+    const exercises = [...EXERCISES[dayType]].map((name) => ({
+      name,
+      sets: repRange.sets,
+      reps: repRange.reps,
+    }));
+
+    // Aesthetic-balance nudge from the estimated body shape: add one extra
+    // exercise on the side that's under-emphasized. This is a coarse,
+    // optional bias — not a correction of any deficiency.
+    if (trainingBias === 'lower_emphasis' && LOWER_DAY_TYPES.has(dayType)) {
+      exercises.push({ name: 'Extra Leg Accessory (e.g. Leg Curl)', sets: 2, reps: '12-15' });
+    }
+    if (trainingBias === 'upper_emphasis' && UPPER_DAY_TYPES.has(dayType)) {
+      exercises.push({ name: 'Extra Upper Accessory (e.g. Rear Delt Fly)', sets: 2, reps: '12-15' });
+    }
+
+    return {
+      day: index + 1,
+      focus: DAY_LABELS[dayType],
+      exercises,
+    };
+  });
+}
+
+function generatePlan(profile, bodyShape) {
+  return {
+    nutrition: buildNutritionPlan(profile),
+    workout: generateWorkoutPlan({
+      daysPerWeek: profile.daysPerWeek,
+      goal: profile.goal,
+      trainingBias: bodyShape?.trainingBias ?? 'balanced',
+    }),
+  };
+}
+
+// =========================================================================
+// bodyShape: pose keypoints -> coarse body-proportion estimate.
+// =========================================================================
+
+const MIN_KEYPOINT_SCORE = 0.3;
+
+function findPoint(keypoints, name) {
+  const point = keypoints.find((k) => k.name === name);
+  if (!point || (point.score ?? 0) < MIN_KEYPOINT_SCORE) return null;
+  return point;
+}
+
+function distance(a, b) {
+  return Math.hypot(a.x - b.x, a.y - b.y);
+}
+
+function midpoint(a, b) {
+  return { x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 };
+}
+
+function classifyBodyShape(keypoints) {
+  const leftShoulder = findPoint(keypoints, 'left_shoulder');
+  const rightShoulder = findPoint(keypoints, 'right_shoulder');
+  const leftHip = findPoint(keypoints, 'left_hip');
+  const rightHip = findPoint(keypoints, 'right_hip');
+  const leftAnkle = findPoint(keypoints, 'left_ankle');
+  const rightAnkle = findPoint(keypoints, 'right_ankle');
+
+  if (!leftShoulder || !rightShoulder || !leftHip || !rightHip) {
+    return { available: false, reason: 'Could not confidently detect shoulders/hips in the photo.' };
+  }
+
+  const shoulderWidth = distance(leftShoulder, rightShoulder);
+  const hipWidth = distance(leftHip, rightHip);
+  const shoulderToHipRatio = shoulderWidth / hipWidth;
+
+  const shoulderMid = midpoint(leftShoulder, rightShoulder);
+  const hipMid = midpoint(leftHip, rightHip);
+  const torsoLength = distance(shoulderMid, hipMid);
+
+  let legToTorsoRatio = null;
+  if (leftAnkle && rightAnkle) {
+    const ankleMid = midpoint(leftAnkle, rightAnkle);
+    const legLength = distance(hipMid, ankleMid);
+    legToTorsoRatio = legLength / torsoLength;
+  }
+
+  let label = 'balanced build';
+  let trainingBias = 'balanced';
+  if (shoulderToHipRatio > 1.15) {
+    label = 'shoulder-dominant (V-taper) build';
+    trainingBias = 'lower_emphasis';
+  } else if (shoulderToHipRatio < 0.95) {
+    label = 'hip-dominant build';
+    trainingBias = 'upper_emphasis';
+  }
+
+  return {
+    available: true,
+    shoulderToHipRatio: Number(shoulderToHipRatio.toFixed(2)),
+    legToTorsoRatio: legToTorsoRatio !== null ? Number(legToTorsoRatio.toFixed(2)) : null,
+    label,
+    trainingBias,
+  };
+}
+
+// =========================================================================
+// camera: webcam capture + file-upload fallback.
+// =========================================================================
+
+async function startCamera(videoEl) {
+  const stream = await navigator.mediaDevices.getUserMedia({
+    video: { facingMode: 'user' },
+    audio: false,
+  });
+  videoEl.srcObject = stream;
+  await videoEl.play();
+  return stream;
+}
+
+function stopCamera(stream) {
+  stream?.getTracks().forEach((track) => track.stop());
+}
+
+function captureFrame(videoEl) {
+  const canvas = document.createElement('canvas');
+  canvas.width = videoEl.videoWidth;
+  canvas.height = videoEl.videoHeight;
+  const ctx = canvas.getContext('2d');
+  ctx.drawImage(videoEl, 0, 0, canvas.width, canvas.height);
+  return canvas.toDataURL('image/jpeg', 0.9);
+}
+
+function readFileAsDataURL(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result);
+    reader.onerror = () => reject(reader.error);
+    reader.readAsDataURL(file);
+  });
+}
+
+function loadImage(dataUrl) {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    img.onload = () => resolve(img);
+    img.onerror = () => reject(new Error('Could not load image.'));
+    img.src = dataUrl;
+  });
+}
+
+// =========================================================================
+// poseAnalysis: TensorFlow.js + MoveNet loaded from a CDN on demand.
+// =========================================================================
+
+const TFJS_URL = 'https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@4.20.0/dist/tf.min.js';
+const POSE_DETECTION_URL =
+  'https://cdn.jsdelivr.net/npm/@tensorflow-models/pose-detection@2.1.3/dist/pose-detection.min.js';
+
+let detectorPromise = null;
+
+function loadScript(src) {
+  return new Promise((resolve, reject) => {
+    const script = document.createElement('script');
+    script.src = src;
+    script.onload = () => resolve();
+    script.onerror = () => reject(new Error(`Failed to load ${src}`));
+    document.head.appendChild(script);
+  });
+}
+
+async function ensureLibrariesLoaded() {
+  if (!window.tf) await loadScript(TFJS_URL);
+  if (!window.poseDetection) await loadScript(POSE_DETECTION_URL);
+}
+
+async function getDetector() {
+  if (!detectorPromise) {
+    detectorPromise = (async () => {
+      await ensureLibrariesLoaded();
+      return window.poseDetection.createDetector(window.poseDetection.SupportedModels.MoveNet, {
+        modelType: window.poseDetection.movenet.modelType.SINGLEPOSE_LIGHTNING,
+      });
+    })();
+  }
+  return detectorPromise;
+}
+
+async function detectKeypoints(imageEl) {
+  const detector = await getDetector();
+  const poses = await detector.estimatePoses(imageEl);
+  return poses.length ? poses[0].keypoints : [];
+}
+
+// =========================================================================
+// storage: IndexedDB wrapper, local-only persistence.
+// =========================================================================
+
+const DB_NAME = 'body-scan-fitness-app';
+const DB_VERSION = 1;
+const STORE_NAME = 'scans';
+
+function openDatabase() {
+  return new Promise((resolve, reject) => {
+    const request = indexedDB.open(DB_NAME, DB_VERSION);
+    request.onupgradeneeded = () => {
+      const db = request.result;
+      if (!db.objectStoreNames.contains(STORE_NAME)) {
+        db.createObjectStore(STORE_NAME, { keyPath: 'id', autoIncrement: true });
+      }
+    };
+    request.onsuccess = () => resolve(request.result);
+    request.onerror = () => reject(request.error);
+  });
+}
+
+async function saveScan(scan) {
+  const db = await openDatabase();
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction(STORE_NAME, 'readwrite');
+    const store = tx.objectStore(STORE_NAME);
+    const request = store.add({ ...scan, createdAt: Date.now() });
+    request.onsuccess = () => resolve(request.result);
+    request.onerror = () => reject(request.error);
+  });
+}
+
+async function listScans() {
+  const db = await openDatabase();
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction(STORE_NAME, 'readonly');
+    const store = tx.objectStore(STORE_NAME);
+    const request = store.getAll();
+    request.onsuccess = () => resolve(request.result.sort((a, b) => b.createdAt - a.createdAt));
+    request.onerror = () => reject(request.error);
+  });
+}
+
+async function deleteScan(id) {
+  const db = await openDatabase();
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction(STORE_NAME, 'readwrite');
+    const store = tx.objectStore(STORE_NAME);
+    const request = store.delete(id);
+    request.onsuccess = () => resolve();
+    request.onerror = () => reject(request.error);
+  });
+}
+
+async function clearAllData() {
+  const db = await openDatabase();
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction(STORE_NAME, 'readwrite');
+    const store = tx.objectStore(STORE_NAME);
+    const request = store.clear();
+    request.onsuccess = () => resolve();
+    request.onerror = () => reject(request.error);
+  });
+}
+
+// =========================================================================
+// app: wires everything above to the UI.
+// =========================================================================
+
+const state = {
+  profile: null,
+  photoDataUrl: null,
+  bodyShape: null,
+  plan: null,
+  cameraStream: null,
+};
+
+const steps = ['profile', 'photos', 'review', 'plan', 'history'];
+
+function showStep(name) {
+  steps.forEach((s) => {
+    document.getElementById(`step-${s}`).classList.toggle('hidden', s !== name);
+  });
+}
+
+// --- Step 1: Profile form + unit conversion ------------------------------
+
+const unitsSelect = document.getElementById('units');
+const heightUnitLabel = document.getElementById('height-unit');
+const weightUnitLabel = document.getElementById('weight-unit');
+
+unitsSelect.addEventListener('change', () => {
+  const imperial = unitsSelect.value === 'imperial';
+  heightUnitLabel.textContent = imperial ? 'in' : 'cm';
+  weightUnitLabel.textContent = imperial ? 'lb' : 'kg';
+});
+
+document.getElementById('profile-form').addEventListener('submit', (event) => {
+  event.preventDefault();
+  const form = new FormData(event.target);
+  const imperial = form.get('units') === 'imperial';
+  const heightRaw = Number(form.get('height'));
+  const weightRaw = Number(form.get('weight'));
+
+  state.profile = {
+    sex: form.get('sex'),
+    age: Number(form.get('age')),
+    heightCm: imperial ? heightRaw * 2.54 : heightRaw,
+    weightKg: imperial ? weightRaw * 0.453592 : weightRaw,
+    activityLevel: form.get('activityLevel'),
+    goal: form.get('goal'),
+    daysPerWeek: Number(form.get('daysPerWeek')),
+  };
+
+  resetPhotoStep();
+  showStep('photos');
+});
+
+// --- Step 2: Photos -------------------------------------------------------
+
+const videoEl = document.getElementById('camera-preview');
+const photoPreview = document.getElementById('photo-preview');
+const startCameraBtn = document.getElementById('start-camera');
+const captureBtn = document.getElementById('capture-photo');
+const retakeBtn = document.getElementById('retake-photo');
+const uploadInput = document.getElementById('upload-photo');
+const photoStatus = document.getElementById('photo-status');
+
+function resetPhotoStep() {
+  state.photoDataUrl = null;
+  videoEl.classList.add('hidden');
+  photoPreview.classList.add('hidden');
+  captureBtn.classList.add('hidden');
+  retakeBtn.classList.add('hidden');
+  startCameraBtn.classList.remove('hidden');
+  photoStatus.textContent = '';
+  if (state.cameraStream) {
+    stopCamera(state.cameraStream);
+    state.cameraStream = null;
+  }
+}
+
+startCameraBtn.addEventListener('click', async () => {
+  try {
+    photoStatus.textContent = 'Requesting camera access...';
+    state.cameraStream = await startCamera(videoEl);
+    videoEl.classList.remove('hidden');
+    photoPreview.classList.add('hidden');
+    startCameraBtn.classList.add('hidden');
+    captureBtn.classList.remove('hidden');
+    photoStatus.textContent = 'Stand facing the camera, full body in frame.';
+  } catch (err) {
+    photoStatus.textContent = `Could not access camera: ${err.message}. Try uploading a photo instead.`;
+  }
+});
+
+captureBtn.addEventListener('click', () => {
+  state.photoDataUrl = captureFrame(videoEl);
+  photoPreview.src = state.photoDataUrl;
+  photoPreview.classList.remove('hidden');
+  videoEl.classList.add('hidden');
+  captureBtn.classList.add('hidden');
+  retakeBtn.classList.remove('hidden');
+  if (state.cameraStream) {
+    stopCamera(state.cameraStream);
+    state.cameraStream = null;
+  }
+  photoStatus.textContent = 'Photo captured.';
+});
+
+retakeBtn.addEventListener('click', () => {
+  resetPhotoStep();
+});
+
+uploadInput.addEventListener('change', async () => {
+  const file = uploadInput.files[0];
+  if (!file) return;
+  state.photoDataUrl = await readFileAsDataURL(file);
+  photoPreview.src = state.photoDataUrl;
+  photoPreview.classList.remove('hidden');
+  videoEl.classList.add('hidden');
+  startCameraBtn.classList.add('hidden');
+  captureBtn.classList.add('hidden');
+  retakeBtn.classList.remove('hidden');
+  photoStatus.textContent = 'Photo uploaded.';
+});
+
+document.getElementById('photos-back').addEventListener('click', () => {
+  resetPhotoStep();
+  showStep('profile');
+});
+
+document.getElementById('photos-skip').addEventListener('click', async () => {
+  state.photoDataUrl = null;
+  state.bodyShape = { available: false, reason: 'Skipped photo analysis.' };
+  resetPhotoStep();
+  await goToReview();
+});
+
+document.getElementById('photos-next').addEventListener('click', async () => {
+  await goToReview();
+});
+
+async function goToReview() {
+  const reviewContent = document.getElementById('review-content');
+  reviewContent.innerHTML = '';
+
+  if (!state.photoDataUrl) {
+    state.bodyShape = state.bodyShape ?? { available: false, reason: 'No photo provided.' };
+    reviewContent.appendChild(
+      renderReviewMessage('No photo analyzed. Your plan will use a balanced training split.')
+    );
+    showStep('review');
+    return;
+  }
+
+  reviewContent.appendChild(renderReviewMessage('Analyzing your photo in the browser...'));
+  showStep('review');
+
+  try {
+    const img = await loadImage(state.photoDataUrl);
+    const keypoints = await detectKeypoints(img);
+    state.bodyShape = classifyBodyShape(keypoints);
+  } catch (err) {
+    state.bodyShape = { available: false, reason: `Analysis failed: ${err.message}` };
+  }
+
+  reviewContent.innerHTML = '';
+  if (state.bodyShape.available) {
+    reviewContent.appendChild(
+      renderReviewMessage(
+        `Estimated build: ${state.bodyShape.label} (shoulder/hip ratio ${state.bodyShape.shoulderToHipRatio}). ` +
+          `This only nudges workout balance — it is not a body-fat or health measurement.`
+      )
+    );
+  } else {
+    reviewContent.appendChild(
+      renderReviewMessage(
+        `${state.bodyShape.reason} Your plan will use a balanced training split.`
+      )
+    );
+  }
+}
+
+function renderReviewMessage(text) {
+  const p = document.createElement('p');
+  p.textContent = text;
+  return p;
+}
+
+document.getElementById('review-back').addEventListener('click', () => {
+  showStep('photos');
+});
+
+document.getElementById('review-generate').addEventListener('click', () => {
+  state.plan = generatePlan(state.profile, state.bodyShape);
+  renderPlan();
+  showStep('plan');
+});
+
+// --- Step 4: Plan ---------------------------------------------------------
+
+function renderPlan() {
+  const { nutrition, workout } = state.plan;
+  const container = document.getElementById('plan-content');
+  container.innerHTML = '';
+
+  const nutritionHeading = document.createElement('h3');
+  nutritionHeading.textContent = 'Nutrition Targets (daily)';
+  container.appendChild(nutritionHeading);
+
+  const macroGrid = document.createElement('div');
+  macroGrid.className = 'macro-grid';
+  macroGrid.appendChild(macroTile(nutrition.calories, 'Calories'));
+  macroGrid.appendChild(macroTile(`${nutrition.proteinG} g`, 'Protein'));
+  macroGrid.appendChild(macroTile(`${nutrition.carbsG} g`, 'Carbs'));
+  macroGrid.appendChild(macroTile(`${nutrition.fatG} g`, 'Fat'));
+  container.appendChild(macroGrid);
+
+  const workoutHeading = document.createElement('h3');
+  workoutHeading.textContent = 'Weekly Workout Split';
+  container.appendChild(workoutHeading);
+
+  workout.forEach((day) => {
+    const dayHeading = document.createElement('h4');
+    dayHeading.textContent = `Day ${day.day}: ${day.focus}`;
+    container.appendChild(dayHeading);
+
+    const table = document.createElement('table');
+    const thead = document.createElement('thead');
+    thead.innerHTML = '<tr><th>Exercise</th><th>Sets</th><th>Reps</th></tr>';
+    table.appendChild(thead);
+    const tbody = document.createElement('tbody');
+    day.exercises.forEach((ex) => {
+      const tr = document.createElement('tr');
+      const nameTd = document.createElement('td');
+      nameTd.textContent = ex.name;
+      const setsTd = document.createElement('td');
+      setsTd.textContent = ex.sets;
+      const repsTd = document.createElement('td');
+      repsTd.textContent = ex.reps;
+      tr.append(nameTd, setsTd, repsTd);
+      tbody.appendChild(tr);
+    });
+    table.appendChild(tbody);
+    container.appendChild(table);
+  });
+}
+
+function macroTile(value, label) {
+  const tile = document.createElement('div');
+  tile.className = 'macro-tile';
+  const valueEl = document.createElement('div');
+  valueEl.className = 'value';
+  valueEl.textContent = value;
+  const labelEl = document.createElement('div');
+  labelEl.className = 'label';
+  labelEl.textContent = label;
+  tile.append(valueEl, labelEl);
+  return tile;
+}
+
+document.getElementById('plan-save').addEventListener('click', async () => {
+  await saveScan({
+    profile: state.profile,
+    bodyShape: state.bodyShape,
+    plan: state.plan,
+    photoDataUrl: state.photoDataUrl,
+  });
+  await renderHistory();
+  showStep('history');
+});
+
+document.getElementById('plan-restart').addEventListener('click', () => {
+  state.profile = null;
+  state.photoDataUrl = null;
+  state.bodyShape = null;
+  state.plan = null;
+  document.getElementById('profile-form').reset();
+  resetPhotoStep();
+  showStep('profile');
+});
+
+// --- History ---------------------------------------------------------------
+
+async function renderHistory() {
+  const scans = await listScans();
+  const container = document.getElementById('history-content');
+  container.innerHTML = '';
+
+  if (scans.length === 0) {
+    const empty = document.createElement('p');
+    empty.textContent = 'No saved scans yet.';
+    container.appendChild(empty);
+    return;
+  }
+
+  scans.forEach((scan) => {
+    const item = document.createElement('div');
+    item.className = 'history-item';
+
+    const info = document.createElement('div');
+    const date = new Date(scan.createdAt).toLocaleString();
+    const dateEl = document.createElement('div');
+    dateEl.textContent = date;
+    const summaryEl = document.createElement('div');
+    summaryEl.textContent = `${scan.profile.goal.replace('_', ' ')} — ${scan.plan.nutrition.calories} kcal/day`;
+    info.append(dateEl, summaryEl);
+
+    const deleteBtn = document.createElement('button');
+    deleteBtn.textContent = 'Delete';
+    deleteBtn.addEventListener('click', async () => {
+      await deleteScan(scan.id);
+      await renderHistory();
+    });
+
+    item.append(info, deleteBtn);
+    container.appendChild(item);
+  });
+}
+
+document.getElementById('history-clear').addEventListener('click', async () => {
+  if (confirm('Delete all saved scans from this device? This cannot be undone.')) {
+    await clearAllData();
+    await renderHistory();
+  }
+});
+
+document.getElementById('nav-new-scan').addEventListener('click', () => {
+  showStep('profile');
+});
+
+document.getElementById('nav-history').addEventListener('click', async () => {
+  await renderHistory();
+  showStep('history');
+});
+
+showStep('profile');
+</script>
+</body>
+</html>

@@ -6,14 +6,22 @@ your stats and goal.
 
 ## Running it
 
-This is a plain HTML/CSS/JS app with no build step, but it uses ES modules
-and (optionally) the camera, both of which require an http(s) origin rather
-than opening the file directly. Serve it with any static file server, e.g.:
+This is a plain HTML/CSS/JS app with no build step. There are two versions:
+
+- **`index.html`** (+ `js/`, `css/`) — the modular source, split into files
+  by concern. It uses ES modules, so it must be served over http(s) rather
+  than opened directly as a `file://` path.
+- **`body-scan-fitness-app.html`** — a single self-contained file with all
+  the CSS and JS inlined, kept in sync with the modular version. Handy to
+  open directly in an editor (e.g. VS Code) or hand to someone as one file.
+  The camera step still needs an http(s)/localhost origin to get
+  permission in most browsers, so serving it is still recommended.
 
 ```sh
 cd fitness-app
 python3 -m http.server 8080
-# then open http://localhost:8080
+# then open http://localhost:8080 (modular) or
+# http://localhost:8080/body-scan-fitness-app.html (single file)
 ```
 
 ## How it works
